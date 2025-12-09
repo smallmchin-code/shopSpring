@@ -1,6 +1,8 @@
 package com.example.springtest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +22,7 @@ public class ProductImage {
     private int id;
 
     @Lob
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,7 +32,8 @@ public class ProductImage {
 
     private boolean isMain;
 
-    public ProductImage() {}
+    public ProductImage() {
+    }
 
     public ProductImage(int id, byte[] imageData, boolean isMain) {
         this.id = id;
