@@ -3,6 +3,7 @@ package com.example.springtest.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,22 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Product getProductById(int id) {
-        return productRepository.findById(id).orElse(null);
+        Product product = productRepository.findByIdWithVariants(id).orElse(null);
+        if (product != null) {
+            product.getImages().size();
+        }
+
+        return product;
+    }
+
+    public List<Product> getFilteredProducts(String category) {
+        if (category == null || category.trim().isEmpty() || "all".equalsIgnoreCase(category.trim())) {
+            return productRepository.findAll();
+        } else {
+            return productRepository.findByCategoryWithVariants(category); // 🌟 使用新的 Repository 方法
+        }
     }
 
     // public Product createProduct(Product product) {
@@ -91,9 +106,40 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public byte[] getImageDataById(int imageId) {
-        return imageRepository.findById(imageId)
-                .map(ProductImage::getImageData)
+        Optional<ProductImage> imageOptional = imageRepository.findById(imageId);
+
+        return imageOptional.map(ProductImage::getImageData)
                 .orElse(null);
     }
+
+    @Transactional
+    public Product updateProduct(int id, Product updatedProduct) {
+        Product existingProduct = productRepository.findByIdWithVariants(id).orElse(null);
+
+        if (existingProduct == null) {
+            // 🌟 修正 2: 找不到商品時拋出異常，讓 Controller 返回 404
+            throw new RuntimeException("Product not found with ID: " + id);
+        }
+
+        // 2. 更新商品基本欄位
+        existingProduct.setName(updatedProduct.getName());
+        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setDescription(updatedProduct.getDescription());
+        existingProduct.setCategory(updatedProduct.getCategory());
+        if (existingProduct.getVariants() != null && !existingProduct.getVariants().isEmpty()) {
+            ProductVariant mainVariant = existingProduct.getVariants().get(0);
+
+            if (updatedProduct.getStock() >= 0) {
+                mainVariant.setStock(updatedProduct.getStock());
+            }
+
+            if (updatedProduct.getSize() != null) {
+                mainVariant.setSize(updatedProduct.getSize());
+            }
+        }
+        return productRepository.save(existingProduct);
+    }
+
 }
