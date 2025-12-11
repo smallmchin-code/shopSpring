@@ -35,19 +35,16 @@ public class ProductController {
 
     @GetMapping
     public List<Product> getAllProducts(@RequestParam(value = "category", required = false) String category) {
-        // 🌟 調用 Service 中的過濾邏輯
         return productService.getFilteredProducts(category);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable int id) {
-        // 🌟 核心修正：使用 Service 中已修正的 getProductById
         Product product = productService.getProductById(id);
-
         if (product == null) {
-            return ResponseEntity.notFound().build(); // 返回 404
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(product); // 返回 200 OK
+        return ResponseEntity.ok(product);
     }
 
     // @PostMapping

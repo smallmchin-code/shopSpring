@@ -48,6 +48,12 @@ public class UserController {
     public ResponseEntity<User> login(@RequestBody User user) {
         User authenticatedUser = userService.login(user.getUsername(), user.getPassword());
         return ResponseEntity.ok(authenticatedUser);
-        
+
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        userService.logout();
+        return ResponseEntity.ok().build();
     }
 }

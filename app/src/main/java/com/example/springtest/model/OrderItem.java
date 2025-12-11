@@ -1,6 +1,8 @@
 package com.example.springtest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,12 +27,14 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "orderItems" }) // 假設 Product 實體也有 orderItems 的反向關聯
     private Product product;
 
     private int quantity;
     private double price;
 
-    public OrderItem() {}
+    public OrderItem() {
+    }
 
     public OrderItem(int id, Order order, Product product, int quantity, double price) {
         this.id = id;

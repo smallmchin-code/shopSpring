@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.springtest.DTO.OrderRequest;
 import com.example.springtest.model.Order;
 import com.example.springtest.service.OrderService;
 
@@ -30,12 +31,17 @@ public class OrderController {
     }
 
     @PostMapping
-    public Order createOrder(@RequestBody Order order) {
-        return orderService.createOrder(order);
+    public Order createOrder(@RequestBody OrderRequest orderRequest) {
+        return orderService.createOrder(orderRequest);
     }
 
     @DeleteMapping("/{id}")
     public void deleteOrder(@PathVariable int id) {
         orderService.deleteOrder(id);
+    }
+
+    @PutMapping("/{id}/status")
+    public Order updateOrderStatus(@PathVariable int id, @RequestBody String status) {
+        return orderService.updateOrderStatus(id, status); // 💡 需要在 OrderService 中新增這個方法
     }
 }

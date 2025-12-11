@@ -11,7 +11,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "orders")
@@ -23,6 +26,7 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "orders" }) // orders 是 User 實體中的反向關聯
     private User user;
 
     private String status;
@@ -30,9 +34,11 @@ public class Order {
     private LocalDateTime orderDate;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems;
+    @JsonIgnoreProperties({ "order" })
+    private List<OrderItem> orderItems = new ArrayList<>();;
 
-    public Order() {}
+    public Order() {
+    }
 
     public Order(int id, User user, String status, double totalAmount, LocalDateTime orderDate) {
         this.id = id;
