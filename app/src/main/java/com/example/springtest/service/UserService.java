@@ -26,6 +26,9 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
+            throw new RuntimeException("Username already exists"); // 簡化錯誤處理，實務上應拋出更具體的 HTTP 狀態
+        }
         return userRepository.save(user);
     }
 

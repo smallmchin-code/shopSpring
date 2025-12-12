@@ -3,11 +3,15 @@ package com.example.springtest.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.springtest.DTO.OrderRequest;
 import com.example.springtest.model.Order;
 import com.example.springtest.service.OrderService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -25,9 +29,16 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
-    @GetMapping("/{id}")
-    public Order getOrderById(@PathVariable int id) {
-        return orderService.getOrderById(id);
+    @GetMapping("/myorders")
+    public List<Order> getMyOrders(HttpSession session) { // 💡 從 Session 獲取 ID
+        Integer userId = (Integer) session.getAttribute("userId");
+
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
+        }
+
+        // 假設 OrderService 中有此方法
+        return orderService.getOrdersByUserId(userId);
     }
 
     @PostMapping

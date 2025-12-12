@@ -39,6 +39,10 @@ public class OrderService {
         return orderRepository.findById(id).orElse(null);
     }
 
+    public List<Order> getOrdersByUserId(int userId) {
+        return orderRepository.findByUserId(userId);
+    }
+
     public Order createOrder(OrderRequest orderRequest) {
         User user = userRepository.findById(orderRequest.getUserId()).orElse(null);
         Order order = new Order();
