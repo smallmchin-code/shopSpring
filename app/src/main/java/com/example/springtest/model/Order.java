@@ -1,6 +1,7 @@
 package com.example.springtest.model;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -33,6 +34,14 @@ public class Order {
     private double totalAmount;
     private LocalDateTime orderDate;
 
+    @Column(name = "merchant_trade_no")
+    private String merchantTradeNo;
+    private String paymentStatus; // UNPAID, PAID, FAILED
+    private String paymentMethod; // Credit, ATM, CVS...
+    @Column(name = "trade_no")
+    private String tradeNo; // 綠界回傳 TradeNo
+    private LocalDateTime paymentTime;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({ "order" })
     private List<OrderItem> orderItems = new ArrayList<>();;
@@ -46,6 +55,47 @@ public class Order {
         this.status = status;
         this.totalAmount = totalAmount;
         this.orderDate = orderDate;
+        this.paymentStatus = "UNPAID";
+    }
+
+    public String getMerchantTradeNo() {
+        return merchantTradeNo;
+    }
+
+    public void setMerchantTradeNo(String merchantTradeNo) {
+        this.merchantTradeNo = merchantTradeNo;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getTradeNo() {
+        return tradeNo;
+    }
+
+    public void setTradeNo(String tradeNo) {
+        this.tradeNo = tradeNo;
+    }
+
+    public LocalDateTime getPaymentTime() {
+        return paymentTime;
+    }
+
+    public void setPaymentTime(LocalDateTime paymentTime) {
+        this.paymentTime = paymentTime;
     }
 
     public int getId() {

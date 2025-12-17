@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.springtest.DTO.OrderRequest;
+import com.example.springtest.DTO.OrderResponse;
 import com.example.springtest.model.Order;
 import com.example.springtest.service.OrderService;
 
@@ -42,7 +43,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public Order createOrder(@RequestBody OrderRequest orderRequest) {
+    public OrderResponse createOrder(@RequestBody OrderRequest orderRequest) {
         return orderService.createOrder(orderRequest);
     }
 

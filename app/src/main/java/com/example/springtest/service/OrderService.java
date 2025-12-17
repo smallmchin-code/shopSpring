@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.springtest.DTO.OrderItemRequest;
 import com.example.springtest.DTO.OrderRequest;
+import com.example.springtest.DTO.OrderResponse;
 import com.example.springtest.model.Order;
 import com.example.springtest.model.OrderItem;
 import com.example.springtest.model.Product;
@@ -22,13 +24,15 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final EcpayService ecpayService;
 
     @Autowired
     public OrderService(OrderRepository orderRepository, UserRepository userRepository,
-            ProductRepository productRepository) {
+            ProductRepository productRepository, EcpayService ecpayService) { // 💡 新增注入
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.ecpayService = ecpayService; // 💡 賦值
     }
 
     public List<Order> getAllOrders() {
@@ -43,13 +47,18 @@ public class OrderService {
         return orderRepository.findByUserId(userId);
     }
 
-    public Order createOrder(OrderRequest orderRequest) {
+    public OrderResponse createOrder(OrderRequest orderRequest) {
         User user = userRepository.findById(orderRequest.getUserId()).orElse(null);
         Order order = new Order();
         order.setUser(user);
         // order.setTotalAmount(orderRequest.getTotalPrice());
         order.setStatus("PENDING");
         order.setOrderDate(LocalDateTime.now());
+
+        order.setPaymentStatus("UNPAID"); // 預設未付款
+        order.setPaymentMethod(null); // 付款方式尚未選擇
+        order.setTradeNo(null); // 尚未有綠界交易編號
+        order.setPaymentTime(null); // 尚未付款
 
         double calculatedTotal = 0.0;
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {
@@ -64,7 +73,17 @@ public class OrderService {
             order.getOrderItems().add(item);
         }
         order.setTotalAmount(calculatedTotal);
-        return orderRepository.save(order);
+        order = orderRepository.save(order);
+
+        OrderResponse orderResponse = ecpayService.createPaymentRequest(order);
+
+        // 💡 記得要將 EcpayService 中生成的 TradeNo 存回資料庫
+        // 因為 createPaymentRequest 已經修改了 order 實體的 tradeNo，所以需要再次儲存
+        order.setMerchantTradeNo(orderResponse.getMerchantTradeNo());
+        orderRepository.save(order);
+
+        // ===== 回傳前端 =====
+        return orderResponse;
     }
 
     public void deleteOrder(int id) {
@@ -78,4 +97,27 @@ public class OrderService {
         order.setStatus(newStatus);
         return orderRepository.save(order);
     }
+
+    @Transactional
+    public void updateOrderPaymentResult(String merchantTradeNo, String rtnCode, String paymentType, String tradeNo) {
+        // 根據我們自己生成的 MerchantTradeNo 尋找訂單
+        Order order = orderRepository.findByMerchantTradeNo(merchantTradeNo);
+
+        if (order != null && "1".equals(rtnCode)) {
+            order.setPaymentStatus("PAID");
+            order.setStatus("PROCESSING");
+            order.setPaymentMethod(paymentType);
+            order.setTradeNo(tradeNo); // 這裡存的是綠界回傳的 251217... 那串長數字
+            order.setPaymentTime(LocalDateTime.now());
+            orderRepository.save(order);
+            System.out.println("✅ 訂單 " + merchantTradeNo + " 已成功更新為 PAID");
+        } else {
+            // 交易失敗或處理中，僅更新狀態
+            order.setPaymentStatus("FAILED");
+            order.setStatus("CANCELLED");
+        }
+
+        orderRepository.save(order);
+    }
+
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -63,7 +66,18 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        // ① 建立 Authentication（⚠️ 關鍵）
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                authenticatedUser.getUsername(),
+                null,
+                List.of());
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         HttpSession session = request.getSession(true);
+        session.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
         session.setAttribute("userId", authenticatedUser.getId());
         session.setAttribute("username", authenticatedUser.getUsername());
 
