@@ -34,8 +34,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 // 允許註冊、產品列表、登入、登出和獲取當前用戶公開存取
                                                 .requestMatchers("/api/users", "/api/products/**", "/api/users/login",
-                                                                "/api/users/logout",
-                                                                "/api/users/me", "/api/ecpay/callback")
+                                                                "/api/users/logout", "/api/users/me", "/api/ecpay/**")
                                                 .permitAll()
                                                 .requestMatchers("/api/orders/**").authenticated()
                                                 // 其他所有請求都需要經過認證 (例如 /api/orders)

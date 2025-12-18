@@ -40,7 +40,7 @@ public class EcpayService {
     private final String returnUrl = "https://christiane-semimonarchic-dancingly.ngrok-free.dev/api/ecpay/callback";
 
     // 交易成功後，前端會被導向的這個頁面
-    private final String clientBackUrl = "https://christiane-semimonarchic-dancingly.ngrok-free.dev/order-completed";
+    private final String clientBackUrl = "https://christiane-semimonarchic-dancingly.ngrok-free.dev/api/ecpay/order-completed";
 
     public OrderResponse createPaymentRequest(Order order) {
 

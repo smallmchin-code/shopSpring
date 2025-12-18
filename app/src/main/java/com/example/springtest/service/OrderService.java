@@ -2,6 +2,7 @@ package com.example.springtest.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,14 +66,22 @@ public class OrderService {
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {
             Product product = productRepository.findById(itemRequest.getProductId())
                     .orElseThrow(() -> new RuntimeException("商品不存在"));
+            int variantId = itemRequest.getVariantId();
+            if (variantId == 0) {
+                throw new RuntimeException("商品 " + product.getName() + " 缺少規格資訊 (variantId=0)");
+            }
             ProductVariant variant = product.getVariants().stream()
                     .filter(v -> v.getId() == itemRequest.getVariantId())
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("所選規格不存在"));
+                    .orElseThrow(() -> new RuntimeException("商品 " + product.getName() + " 找不到規格 ID: " + variantId +
+                            "，可用規格: " + product.getVariants().stream()
+                                    .map(v -> String.valueOf(v.getId()))
+                                    .collect(Collectors.joining(", "))));
             if (variant.getStock() < itemRequest.getQuantity()) {
                 throw new RuntimeException("商品 " + product.getName() + " 庫存不足！");
             }
             variant.setStock(variant.getStock() - itemRequest.getQuantity());
+
             OrderItem item = new OrderItem();
             item.setProduct(product);
             item.setQuantity(itemRequest.getQuantity());
