@@ -1,6 +1,9 @@
 package com.example.springtest.controller;
 
+import java.io.IOException;
 import java.util.List;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.springtest.model.Product;
+import com.example.springtest.model.ProductVariant;
 import com.example.springtest.service.ProductService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/products")
@@ -54,28 +60,33 @@ public class ProductController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> createProductWithImage(
-            // 接收文字欄位 (使用 @RequestParam)
             @RequestParam("name") String name,
             @RequestParam("price") double price,
             @RequestParam("description") String description,
             @RequestParam("category") String category,
-            @RequestParam("stock") int stock,
-            @RequestParam("size") String size,
+            @RequestParam("variantsJson") String variantsJson,
 
-            // 接收檔案欄位
             @RequestPart("imageismain") MultipartFile mainImage,
             // imagedata 欄位是 optional 且可多選的
             @RequestPart(value = "imagedata", required = false) List<MultipartFile> additionalImages) {
+        ObjectMapper mapper = new ObjectMapper();
+        List<ProductVariant> variants;
         try {
-            // 呼叫 Service Layer 處理業務邏輯和檔案儲存
-            Product newProduct = productService.createProductWithImages(
-                    name, price, description, category, stock, size, mainImage, additionalImages);
-            return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
-
-        } catch (Exception e) {
-            System.err.println("新增商品失敗: " + e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            variants = mapper.readValue(variantsJson, new TypeReference<List<ProductVariant>>() {
+            });
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().build();
         }
+        try {
+            // 💡 加上 try-catch 處理 Service 拋出的 IOException
+            Product savedProduct = productService.createProduct(name, price, description, category, variants, mainImage,
+                    additionalImages);
+            return ResponseEntity.ok(savedProduct);
+        } catch (IOException e) {
+            // 如果圖片轉換 byte[] 出錯
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
     }
 
     @GetMapping("/images/{imageId}")

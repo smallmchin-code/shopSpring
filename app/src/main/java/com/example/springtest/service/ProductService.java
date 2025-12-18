@@ -50,14 +50,10 @@ public class ProductService {
         }
     }
 
-    // public Product createProduct(Product product) {
-    // return productRepository.save(product);
-    // }
-
-    @Transactional // 確保資料庫操作和檔案處理（如果有的話）在一個事務中
-    public Product createProductWithImages(
+    @Transactional
+    public Product createProduct(
             String name, double price, String description, String category,
-            int stock, String size,
+            List<ProductVariant> variants,
             MultipartFile mainImage, List<MultipartFile> additionalImages) throws IOException {
 
         // 1. **建構 Product 主體**
@@ -68,11 +64,10 @@ public class ProductService {
         newProduct.setCategory(category);
 
         // 2. **處理 Variants (庫存與尺寸)**
-        ProductVariant variant = new ProductVariant();
-        variant.setSize(size);
-        variant.setStock(stock);
-        variant.setProduct(newProduct); // 設置雙向關聯
-        newProduct.setVariants(List.of(variant));
+        for (ProductVariant variant : variants) {
+            variant.setProduct(newProduct); // 告訴變體它屬於哪個商品
+        }
+        newProduct.setVariants(variants);
 
         // 3. **處理 Images (將 MultipartFile 轉換為 byte[])**
         List<ProductImage> imageList = new ArrayList<>();
@@ -128,15 +123,11 @@ public class ProductService {
         existingProduct.setPrice(updatedProduct.getPrice());
         existingProduct.setDescription(updatedProduct.getDescription());
         existingProduct.setCategory(updatedProduct.getCategory());
-        if (existingProduct.getVariants() != null && !existingProduct.getVariants().isEmpty()) {
-            ProductVariant mainVariant = existingProduct.getVariants().get(0);
-
-            if (updatedProduct.getStock() >= 0) {
-                mainVariant.setStock(updatedProduct.getStock());
-            }
-
-            if (updatedProduct.getSize() != null) {
-                mainVariant.setSize(updatedProduct.getSize());
+        if (updatedProduct.getVariants() != null) {
+            existingProduct.getVariants().clear(); // 清空舊規格
+            for (ProductVariant v : updatedProduct.getVariants()) {
+                v.setProduct(existingProduct);
+                existingProduct.getVariants().add(v);
             }
         }
         return productRepository.save(existingProduct);

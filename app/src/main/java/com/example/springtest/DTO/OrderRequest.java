@@ -3,7 +3,7 @@ package com.example.springtest.DTO;
 import java.util.List;
 
 public class OrderRequest {
-    private int userId; // 用來查詢真正的 User 物件
+    private int userId;
     private double totalPrice;
     private List<OrderItemRequest> items;
 

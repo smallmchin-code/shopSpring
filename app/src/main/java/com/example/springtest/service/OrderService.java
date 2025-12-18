@@ -13,6 +13,7 @@ import com.example.springtest.DTO.OrderResponse;
 import com.example.springtest.model.Order;
 import com.example.springtest.model.OrderItem;
 import com.example.springtest.model.Product;
+import com.example.springtest.model.ProductVariant;
 import com.example.springtest.model.User;
 import com.example.springtest.repository.OrderRepository;
 import com.example.springtest.repository.ProductRepository;
@@ -47,14 +48,14 @@ public class OrderService {
         return orderRepository.findByUserId(userId);
     }
 
+    @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest) {
         User user = userRepository.findById(orderRequest.getUserId()).orElse(null);
+
         Order order = new Order();
         order.setUser(user);
-        // order.setTotalAmount(orderRequest.getTotalPrice());
         order.setStatus("PENDING");
         order.setOrderDate(LocalDateTime.now());
-
         order.setPaymentStatus("UNPAID"); // 預設未付款
         order.setPaymentMethod(null); // 付款方式尚未選擇
         order.setTradeNo(null); // 尚未有綠界交易編號
@@ -62,7 +63,16 @@ public class OrderService {
 
         double calculatedTotal = 0.0;
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId()).orElse(null);
+            Product product = productRepository.findById(itemRequest.getProductId())
+                    .orElseThrow(() -> new RuntimeException("商品不存在"));
+            ProductVariant variant = product.getVariants().stream()
+                    .filter(v -> v.getId() == itemRequest.getVariantId())
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("所選規格不存在"));
+            if (variant.getStock() < itemRequest.getQuantity()) {
+                throw new RuntimeException("商品 " + product.getName() + " 庫存不足！");
+            }
+            variant.setStock(variant.getStock() - itemRequest.getQuantity());
             OrderItem item = new OrderItem();
             item.setProduct(product);
             item.setQuantity(itemRequest.getQuantity());

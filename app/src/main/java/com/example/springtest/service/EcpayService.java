@@ -33,15 +33,13 @@ public class EcpayService {
     @Value("${ecpay.hash-iv}")
     private String hashIV;
 
-    // 綠界測試環境的交易網址 (請自行替換成正式環境網址)
+    // 綠界測試環境的交易網址
     private final String ecpayUrl = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
 
     // 交易完成後，綠界以 POST 方式回傳結果到您的後端 (需是外網可存取的)
-    // ⚠️ 請替換成您的實際網址
     private final String returnUrl = "https://christiane-semimonarchic-dancingly.ngrok-free.dev/api/ecpay/callback";
 
     // 交易成功後，前端會被導向的這個頁面
-    // ⚠️ 請替換成您的實際網址
     private final String clientBackUrl = "https://christiane-semimonarchic-dancingly.ngrok-free.dev/order-completed";
 
     public OrderResponse createPaymentRequest(Order order) {
