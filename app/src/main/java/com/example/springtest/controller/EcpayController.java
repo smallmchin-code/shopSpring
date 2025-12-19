@@ -10,6 +10,7 @@ import com.example.springtest.service.EcpayService;
 import com.example.springtest.service.OrderService;
 
 @RestController
+
 @RequestMapping("/api/ecpay")
 public class EcpayController {
 

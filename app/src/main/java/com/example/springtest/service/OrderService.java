@@ -57,10 +57,10 @@ public class OrderService {
         order.setUser(user);
         order.setStatus("PENDING");
         order.setOrderDate(LocalDateTime.now());
-        order.setPaymentStatus("UNPAID"); // 預設未付款
-        order.setPaymentMethod(null); // 付款方式尚未選擇
-        order.setTradeNo(null); // 尚未有綠界交易編號
-        order.setPaymentTime(null); // 尚未付款
+        order.setPaymentStatus("UNPAID"); 
+        order.setPaymentMethod(null); 
+        order.setTradeNo(null); 
+        order.setPaymentTime(null); 
 
         double calculatedTotal = 0.0;
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {
