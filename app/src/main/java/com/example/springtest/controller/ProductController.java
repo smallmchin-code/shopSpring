@@ -40,8 +40,15 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts(@RequestParam(value = "category", required = false) String category) {
-        return productService.getFilteredProducts(category);
+    public List<Product> getAllProducts(@RequestParam(value = "category", required = false) String category,
+            @RequestParam(required = false) String name) {
+        if (name != null && !name.isEmpty()) {
+            return productService.searchProductsByName(name); // 處理搜尋
+        }
+        if (category != null && !category.isEmpty()) {
+            return productService.getFilteredProducts(category);
+        }
+        return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")

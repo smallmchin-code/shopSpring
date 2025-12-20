@@ -133,4 +133,8 @@ public class ProductService {
         return productRepository.save(existingProduct);
     }
 
+    public List<Product> searchProductsByName(String name) {
+        return productRepository.findByNameContainingWithVariants(name);
+    }
+
 }
