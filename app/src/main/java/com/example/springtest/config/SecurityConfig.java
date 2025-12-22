@@ -20,7 +20,8 @@ public class SecurityConfig {
                                 // 💡 關鍵修改 1：針對綠界回傳的 API 路徑禁用 CSRF
                                 // 綠界伺服器發送的 POST 請求不會帶有你的 CSRF Token，若不排除會導致 403 Forbidden
                                 .csrf(csrf -> csrf
-                                                .ignoringRequestMatchers("/api/ecpay/callback").disable())
+                                                .ignoringRequestMatchers("/api/ecpay/**", "/api/users/**",
+                                                                "/api/orders/**"))
 
                                 // 允許 CORS（配合 WebConfig.java 中的設定）
                                 .cors(Customizer.withDefaults())
@@ -31,8 +32,13 @@ public class SecurityConfig {
 
                                 .authorizeHttpRequests(auth -> auth
                                                 // 💡 關鍵修改 2：確保綠界回傳路徑完全開放
-                                                .requestMatchers("/api/ecpay/callback").permitAll()
-                                                .requestMatchers("/api/ecpay/order-completed").permitAll()
+                                                .requestMatchers("/error").permitAll()
+                                                .requestMatchers(
+                                                                "/api/ecpay/callback")
+                                                .permitAll()
+                                                .requestMatchers(
+                                                                "/api/ecpay/order-completed")
+                                                .permitAll()
 
                                                 // 原有的白名單路徑
                                                 .requestMatchers(

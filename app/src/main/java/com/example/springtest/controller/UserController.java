@@ -39,7 +39,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public User getUserById(@PathVariable int id) {
         return userService.getUserById(id);
     }
