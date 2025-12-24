@@ -37,10 +37,10 @@ public class EcpayService {
     private final String ecpayUrl = "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5";
 
     // 交易完成後，綠界以 POST 方式回傳結果到您的後端 (需是外網可存取的) ngrok http 8080
-    private final String returnUrl = "https://upcoming-socks-tahoe-sheffield.trycloudflare.com/api/ecpay/callback";
+    private final String returnUrl = "https://qualifications-guardian-repeated-clinic.trycloudflare.com/api/ecpay/callback";
 
     // 交易成功後，前端會被導向的這個頁面
-    private final String clientBackUrl = "https://upcoming-socks-tahoe-sheffield.trycloudflare.com/api/ecpay/order-completed";
+    private final String clientBackUrl = "https://qualifications-guardian-repeated-clinic.trycloudflare.com/api/ecpay/order-completed";
 
     public OrderResponse createPaymentRequest(Order order) {
 

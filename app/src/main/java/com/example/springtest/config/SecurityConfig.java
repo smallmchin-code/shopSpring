@@ -21,7 +21,7 @@ public class SecurityConfig {
                                 // 綠界伺服器發送的 POST 請求不會帶有你的 CSRF Token，若不排除會導致 403 Forbidden
                                 .csrf(csrf -> csrf
                                                 .ignoringRequestMatchers("/api/ecpay/**", "/api/users/**",
-                                                                "/api/orders/**"))
+                                                                "/api/products/**", "/api/orders/**"))
 
                                 // 允許 CORS（配合 WebConfig.java 中的設定）
                                 .cors(Customizer.withDefaults())

@@ -54,6 +54,7 @@ public class OrderController {
 
     @PutMapping("/{id}/status")
     public Order updateOrderStatus(@PathVariable int id, @RequestBody String status) {
-        return orderService.updateOrderStatus(id, status); // 💡 需要在 OrderService 中新增這個方法
+        String cleanStatus = status.replace("\"", "");
+        return orderService.updateOrderStatus(id, cleanStatus); // 💡 需要在 OrderService 中新增這個方法
     }
 }

@@ -57,10 +57,10 @@ public class OrderService {
         order.setUser(user);
         order.setStatus("PENDING");
         order.setOrderDate(LocalDateTime.now());
-        order.setPaymentStatus("UNPAID"); 
-        order.setPaymentMethod(null); 
-        order.setTradeNo(null); 
-        order.setPaymentTime(null); 
+        order.setPaymentStatus("UNPAID");
+        order.setPaymentMethod(null);
+        order.setTradeNo(null);
+        order.setPaymentTime(null);
 
         double calculatedTotal = 0.0;
         for (OrderItemRequest itemRequest : orderRequest.getItems()) {
@@ -109,6 +109,7 @@ public class OrderService {
         orderRepository.deleteById(id);
     }
 
+    @Transactional
     public Order updateOrderStatus(int id, String newStatus) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with ID: " + id));
@@ -119,7 +120,6 @@ public class OrderService {
 
     @Transactional
     public void updateOrderPaymentResult(String merchantTradeNo, String rtnCode, String paymentType, String tradeNo) {
-        // 根據我們自己生成的 MerchantTradeNo 尋找訂單
         Order order = orderRepository.findByMerchantTradeNo(merchantTradeNo);
 
         if (order != null && "1".equals(rtnCode)) {
