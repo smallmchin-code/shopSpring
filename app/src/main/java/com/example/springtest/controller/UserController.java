@@ -1,6 +1,8 @@
 package com.example.springtest.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,7 +62,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody User user, HttpServletRequest request) {
+    public ResponseEntity<?> login(@RequestBody User user, HttpServletRequest request) {
         User authenticatedUser = userService.login(user.getUsername(), user.getPassword());
         if (authenticatedUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -81,9 +83,17 @@ public class UserController {
         session.setAttribute("userId", authenticatedUser.getId());
         session.setAttribute("username", authenticatedUser.getUsername());
 
-        // ⚠️ 返回前端時，請務必移除密碼
+        String targetUrl = "/"; // 預設首頁
+        if ("admin".equals(authenticatedUser.getUsername())) {
+            targetUrl = "/manager/products";
+        }
+        Map<String, Object> response = new HashMap<>();
         authenticatedUser.setPassword(null);
-        return ResponseEntity.ok(authenticatedUser);
+        response.put("user", authenticatedUser);
+        response.put("redirectUrl", targetUrl);
+
+        // ⚠️ 返回前端時，請務必移除密碼
+        return ResponseEntity.ok(response);
 
     }
 

@@ -97,8 +97,10 @@ public class ProductService {
         return productRepository.save(newProduct);
     }
 
+    @Transactional
     public void deleteProduct(int id) {
-        productRepository.deleteById(id);
+        Product product = productRepository.findByIdWithVariants(id).orElse(null);
+        productRepository.delete(product);
     }
 
     @Transactional(readOnly = true)

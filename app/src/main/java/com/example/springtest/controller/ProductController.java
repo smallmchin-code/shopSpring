@@ -113,8 +113,15 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable int id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok().build(); // 成功回傳 200
+        } catch (Exception e) {
+            System.err.println("刪除失敗的原因: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("刪除失敗: " + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")
