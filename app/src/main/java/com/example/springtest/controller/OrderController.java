@@ -37,8 +37,6 @@ public class OrderController {
         if (userId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not logged in");
         }
-
-        // 假設 OrderService 中有此方法
         return orderService.getOrdersByUserId(userId);
     }
 

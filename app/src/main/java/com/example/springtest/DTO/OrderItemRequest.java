@@ -1,7 +1,7 @@
 package com.example.springtest.DTO;
 
 public class OrderItemRequest {
-    private int productId; // 實際的 Product ID (您前端用的是 item.id)
+    private int productId;
     private int quantity;
     private double price;
     private int variantId;

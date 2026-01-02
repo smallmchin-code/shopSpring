@@ -46,7 +46,7 @@ public class ProductService {
         if (category == null || category.trim().isEmpty() || "all".equalsIgnoreCase(category.trim())) {
             return productRepository.findAll();
         } else {
-            return productRepository.findByCategoryWithVariants(category); // 🌟 使用新的 Repository 方法
+            return productRepository.findByCategoryWithVariants(category);
         }
     }
 
@@ -56,20 +56,17 @@ public class ProductService {
             List<ProductVariant> variants,
             MultipartFile mainImage, List<MultipartFile> additionalImages) throws IOException {
 
-        // 1. **建構 Product 主體**
         Product newProduct = new Product();
         newProduct.setName(name);
         newProduct.setPrice(price);
         newProduct.setDescription(description);
         newProduct.setCategory(category);
 
-        // 2. **處理 Variants (庫存與尺寸)**
         for (ProductVariant variant : variants) {
-            variant.setProduct(newProduct); // 告訴變體它屬於哪個商品
+            variant.setProduct(newProduct);
         }
         newProduct.setVariants(variants);
 
-        // 3. **處理 Images (將 MultipartFile 轉換為 byte[])**
         List<ProductImage> imageList = new ArrayList<>();
 
         // 處理主圖 (imageismain)
@@ -116,17 +113,15 @@ public class ProductService {
         Product existingProduct = productRepository.findByIdWithVariants(id).orElse(null);
 
         if (existingProduct == null) {
-            // 🌟 修正 2: 找不到商品時拋出異常，讓 Controller 返回 404
             throw new RuntimeException("Product not found with ID: " + id);
         }
 
-        // 2. 更新商品基本欄位
         existingProduct.setName(updatedProduct.getName());
         existingProduct.setPrice(updatedProduct.getPrice());
         existingProduct.setDescription(updatedProduct.getDescription());
         existingProduct.setCategory(updatedProduct.getCategory());
         if (updatedProduct.getVariants() != null) {
-            existingProduct.getVariants().clear(); // 清空舊規格
+            existingProduct.getVariants().clear();
             for (ProductVariant v : updatedProduct.getVariants()) {
                 v.setProduct(existingProduct);
                 existingProduct.getVariants().add(v);

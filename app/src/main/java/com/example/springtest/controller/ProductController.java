@@ -43,7 +43,7 @@ public class ProductController {
     public List<Product> getAllProducts(@RequestParam(value = "category", required = false) String category,
             @RequestParam(required = false) String name) {
         if (name != null && !name.isEmpty()) {
-            return productService.searchProductsByName(name); // 處理搜尋
+            return productService.searchProductsByName(name);
         }
         if (category != null && !category.isEmpty()) {
             return productService.getFilteredProducts(category);
@@ -60,11 +60,6 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    // @PostMapping
-    // public Product createProduct(@RequestBody Product product) {
-    // return productService.createProduct(product);
-    // }
-
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> createProductWithImage(
             @RequestParam("name") String name,
@@ -72,9 +67,7 @@ public class ProductController {
             @RequestParam("description") String description,
             @RequestParam("category") String category,
             @RequestParam("variantsJson") String variantsJson,
-
             @RequestPart("imageismain") MultipartFile mainImage,
-            // imagedata 欄位是 optional 且可多選的
             @RequestPart(value = "imagedata", required = false) List<MultipartFile> additionalImages) {
         ObjectMapper mapper = new ObjectMapper();
         List<ProductVariant> variants;
@@ -100,23 +93,20 @@ public class ProductController {
     public ResponseEntity<byte[]> getImage(@PathVariable int imageId) {
         byte[] imageData = productService.getImageDataById(imageId);
         System.out.println("圖片 ID：" + imageId + "；讀取到的數據長度（Bytes）：" + (imageData != null ? imageData.length : "null"));
-
         if (imageData == null) {
             return ResponseEntity.notFound().build();
         }
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         headers.setContentLength(imageData.length);
-
-        // 返回 200 OK 狀態碼，並將 byte[] 放入 Response Body
-        return new ResponseEntity<>(imageData, headers, org.springframework.http.HttpStatus.OK);
+        return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         try {
             productService.deleteProduct(id);
-            return ResponseEntity.ok().build(); // 成功回傳 200
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             System.err.println("刪除失敗的原因: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

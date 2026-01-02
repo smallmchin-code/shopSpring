@@ -30,11 +30,11 @@ public class OrderService {
 
     @Autowired
     public OrderService(OrderRepository orderRepository, UserRepository userRepository,
-            ProductRepository productRepository, EcpayService ecpayService) { // 💡 新增注入
+            ProductRepository productRepository, EcpayService ecpayService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
-        this.ecpayService = ecpayService; // 💡 賦值
+        this.ecpayService = ecpayService;
     }
 
     public List<Order> getAllOrders() {
@@ -96,12 +96,10 @@ public class OrderService {
 
         OrderResponse orderResponse = ecpayService.createPaymentRequest(order);
 
-        // 💡 記得要將 EcpayService 中生成的 TradeNo 存回資料庫
-        // 因為 createPaymentRequest 已經修改了 order 實體的 tradeNo，所以需要再次儲存
+        // createPaymentRequest 已經修改了 order 實體的 tradeNo，所以需要再次儲存
         order.setMerchantTradeNo(orderResponse.getMerchantTradeNo());
         orderRepository.save(order);
 
-        // ===== 回傳前端 =====
         return orderResponse;
     }
 
@@ -126,12 +124,11 @@ public class OrderService {
             order.setPaymentStatus("PAID");
             order.setStatus("PROCESSING");
             order.setPaymentMethod(paymentType);
-            order.setTradeNo(tradeNo); // 這裡存的是綠界回傳的 251217... 那串長數字
+            order.setTradeNo(tradeNo);
             order.setPaymentTime(LocalDateTime.now());
             orderRepository.save(order);
             System.out.println("✅ 訂單 " + merchantTradeNo + " 已成功更新為 PAID");
         } else {
-            // 交易失敗或處理中，僅更新狀態
             order.setPaymentStatus("FAILED");
             order.setStatus("CANCELLED");
         }

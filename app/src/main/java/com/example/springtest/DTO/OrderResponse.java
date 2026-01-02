@@ -18,7 +18,6 @@ public class OrderResponse {
         this.ecpayParams = ecpayParams;
     }
 
-    // getters & setters
     public int getOrderId() {
         return orderId;
     }

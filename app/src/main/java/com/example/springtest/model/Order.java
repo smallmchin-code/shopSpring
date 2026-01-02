@@ -44,7 +44,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({ "order" })
-    private List<OrderItem> orderItems = new ArrayList<>();;
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     public Order() {
     }

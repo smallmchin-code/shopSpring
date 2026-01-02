@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.springtest.model.User;
 import com.example.springtest.service.UserService;
 
-import jakarta.servlet.http.HttpServletRequest; // 💡 新增依賴
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
@@ -83,7 +83,7 @@ public class UserController {
         session.setAttribute("userId", authenticatedUser.getId());
         session.setAttribute("username", authenticatedUser.getUsername());
 
-        String targetUrl = "/"; // 預設首頁
+        String targetUrl = "/";
         if ("admin".equals(authenticatedUser.getUsername())) {
             targetUrl = "/manager/products";
         }
@@ -91,8 +91,6 @@ public class UserController {
         authenticatedUser.setPassword(null);
         response.put("user", authenticatedUser);
         response.put("redirectUrl", targetUrl);
-
-        // ⚠️ 返回前端時，請務必移除密碼
         return ResponseEntity.ok(response);
 
     }
@@ -107,11 +105,10 @@ public class UserController {
             User user = userService.getUserById(userId);
 
             if (user != null) {
-                user.setPassword(null); // 避免密碼洩漏
+                user.setPassword(null);
                 return ResponseEntity.ok(user);
             }
         }
-        // Session 無效或不存在
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
